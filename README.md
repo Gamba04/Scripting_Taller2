@@ -1,2 +1,3 @@
-# Scripting_Taller2
- 
+# Taller 2
+
+Desarrollado en colaboración con Pedro Pablo Restrepo

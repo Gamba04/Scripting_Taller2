@@ -20,6 +20,8 @@ namespace Scripting_Taller2
         private List<Equip> equips = new List<Equip>();
         private Affinity affinity;
 
+        public Affinity GetAffinity => affinity;
+
         public Character(string name, Rarity rarity, int costPoints, int attackPoints, int resistPoints, Affinity affinity) : base(name, rarity, costPoints)
         {
             this.attackPoints = attackPoints;
@@ -29,20 +31,14 @@ namespace Scripting_Taller2
 
         public void Attack(Character character)
         {
-            int attackBonus = 0;
-
-            character.Resist(attackPoints + attackBonus);
+            character.Resist(attackPoints);
         }
 
-        public void Resist(int attack)
+        public void Resist(int attackPoints)
         {
-            int defenseBonus = 0;
+            resistPoints -= attackPoints;
 
-            attack -= defenseBonus;
-            attack = Math.Max(attack, 0);
-
-            resistPoints -= attack;
-
+            // Check death
             if (resistPoints <= 0)
             {
                 RemoveFromDeck();
@@ -51,7 +47,57 @@ namespace Scripting_Taller2
 
         public void EquipItem(Equip equip)
         {
+            // Apply equip stats
+            switch (equip.GetTargetAttribute)
+            {
+                case Equip.TargetAttribute.AP:
+                    attackPoints += equip.EffectPoints;
+                    break;
+
+                case Equip.TargetAttribute.RP:
+                    resistPoints += equip.EffectPoints;
+                    break;
+
+                case Equip.TargetAttribute.All:
+                    attackPoints += equip.EffectPoints;
+                    resistPoints += equip.EffectPoints;
+
+                    break;
+            }
+
             if (equips.Count < maxEquips) equips.Add(equip);
+        }
+
+        public void DestroyEquip(Equip equip)
+        {
+            if (equips.Contains(equip))
+            {
+                // Deduct equip stats
+                switch (equip.GetTargetAttribute)
+                {
+                    case Equip.TargetAttribute.AP:
+                        attackPoints -= equip.EffectPoints;
+                        break;
+
+                    case Equip.TargetAttribute.RP:
+                        resistPoints -= equip.EffectPoints;
+                        break;
+
+                    case Equip.TargetAttribute.All:
+                        attackPoints -= equip.EffectPoints;
+                        resistPoints -= equip.EffectPoints;
+
+                        break;
+                }
+
+                equips.Remove(equip);
+
+                // Check death
+                if (resistPoints <= 0)
+                {
+                    RemoveFromDeck();
+                }
+            }
         }
     }
 }

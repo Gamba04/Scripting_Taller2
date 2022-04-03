@@ -25,6 +25,9 @@ namespace Scripting_Taller2
         private int effectPoints;
         private Affinity affinity;
 
+        public TargetAttribute GetTargetAttribute => targetAttribute;
+        public int EffectPoints => effectPoints;
+
         public Equip(string name, Rarity rarity, int costPoints, TargetAttribute targetAttribute, int effectPoints, Affinity affinity) : base(name, rarity, costPoints)
         {
             this.targetAttribute = targetAttribute;
@@ -34,9 +37,12 @@ namespace Scripting_Taller2
 
         public void UseOnCharacter(Character character)
         {
-            character.EquipItem(this);
+            if (affinity == Affinity.All || (Affinity)(int)character.GetAffinity == affinity)
+            {
+                character.EquipItem(this);
 
-            RemoveFromDeck();
+                RemoveFromDeck();
+            }
         }
     }
 }

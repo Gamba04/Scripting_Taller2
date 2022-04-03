@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Scripting_Taller2
 {
-    class Deck
+    public class Deck
     {
         private const int maxCharacters = 5;
         private const int maxEquips = 10;
@@ -78,6 +78,39 @@ namespace Scripting_Taller2
             cards.Remove(card);
 
             if (charactersCount <= 0) onAllCharactersEliminated?.Invoke();
+        }
+
+        public void ReduceAP(int amount)
+        {
+            foreach (Card card in cards)
+            {
+                if (card is Character character)
+                {
+                    character.ReduceAP(amount);
+                }
+            }
+        }
+
+        public void ReduceRP(int amount)
+        {
+            foreach (Card card in cards)
+            {
+                if (card is Character character)
+                {
+                    character.RestoreRP(amount);
+                }
+            }
+        }
+
+        public void RestoreRP(int amount)
+        {
+            foreach (Card card in cards)
+            {
+                if (card is Character character)
+                {
+                    character.RestoreRP(amount);
+                }
+            }
         }
     }
 }

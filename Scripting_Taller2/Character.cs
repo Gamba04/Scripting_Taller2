@@ -20,6 +20,8 @@ namespace Scripting_Taller2
         private List<Equip> equips = new List<Equip>();
         private Affinity affinity;
 
+        private int restorableRP;
+
         public Affinity GetAffinity => affinity;
 
         public Character(string name, Rarity rarity, int costPoints, int attackPoints, int resistPoints, Affinity affinity) : base(name, rarity, costPoints)
@@ -37,6 +39,7 @@ namespace Scripting_Taller2
         public void Resist(int attackPoints)
         {
             resistPoints -= attackPoints;
+            restorableRP += attackPoints;
 
             // Check death
             if (resistPoints <= 0)
@@ -98,6 +101,25 @@ namespace Scripting_Taller2
                     RemoveFromDeck();
                 }
             }
+        }
+
+        public void ReduceAP(int amount)
+        {
+            attackPoints -= amount;
+            attackPoints = Math.Max(attackPoints, 0);
+        }
+
+        public void ReduceRP(int amount)
+        {
+            resistPoints -= amount;
+            resistPoints = Math.Max(resistPoints, 0);
+        }
+
+        public void RestoreRP(int amount)
+        {
+            amount = Math.Min(amount, restorableRP);
+
+            restorableRP -= amount;
         }
     }
 }

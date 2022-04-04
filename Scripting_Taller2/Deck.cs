@@ -105,7 +105,7 @@ namespace Scripting_Taller2
             {
                 if (card is Character character)
                 {
-                    character.RestoreRP(amount);
+                    character.ReduceRP(amount);
                 }
             }
         }

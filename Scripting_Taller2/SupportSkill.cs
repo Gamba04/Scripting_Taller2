@@ -26,7 +26,7 @@ namespace Scripting_Taller2
             this.effectPoints = effectType == EffectType.DestroyEquip ? 0 : effectPoints;
         }
 
-        public bool UseSkill(Deck deck, Deck opponentDeck, Character targetCharacter, Equip targetEquip = null)
+        public bool UseSkill(Deck deck, Deck opponentDeck, Character targetCharacter = null, Equip targetEquip = null)
         {
             switch (effectType)
             {

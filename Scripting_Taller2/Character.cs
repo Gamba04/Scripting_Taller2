@@ -129,6 +129,7 @@ namespace Scripting_Taller2
         {
             amount = Math.Min(amount, restorableRP);
 
+            resistPoints += amount;
             restorableRP -= amount;
         }
 

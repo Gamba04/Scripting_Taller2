@@ -169,20 +169,13 @@ namespace Tests
         [Test]
         public void WinMatch()
         {
-            for (int i = 0; i < Deck.maxCharacters; i++)
-            {
-                Character.Affinity affinity = GetRandomEnum<Character.Affinity>();
-                Character character = new Character($"{affinity}_{i + 1}", Character.Rarity.SuperRare, 0, random.Next(1, 50), random.Next(1, 50), affinity);
-
-                Console.WriteLine($"Add {character.Name} ({character.AttackPoints} AP, {character.ResistPoints} RP)");
-                player.Deck.AddCard(character);
-            }
+            FillDeckCharacters(50);
 
             Character enemy = new Character("Undead Enemy", Card.Rarity.Rare, 0, 20, 20, Character.Affinity.Undead);
 
             List<Character> deckCharacters = player.Deck.GetCharacters();
 
-            Console.WriteLine($"\nUndead Enemy attacks:");
+            Console.WriteLine($"Undead Enemy attacks:");
             Console.WriteLine($"Deck cards: {player.Deck.Cards.Count}, lost: {player.Lost}\n");
 
             for (int i = 0; i < deckCharacters.Count; i++)
@@ -417,6 +410,128 @@ namespace Tests
             Console.WriteLine($"Deck cards: {player.Deck.Cards.Count}, lost: {player.Lost}");
         }
 
+        [Test]
+        public void ReduceAPSkill()
+        {
+            FillDeckCharacters(50);
+
+            SupportSkill reduceAPSkill = new SupportSkill("Reduce AP Skill", Card.Rarity.Common, 0, SupportSkill.EffectType.ReduceAP, 10);
+
+            List<Character> characters = player.Deck.GetCharacters();
+
+            int[] ap = new int[characters.Count];
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                ap[i] = characters[i].AttackPoints;
+            }
+
+            Console.WriteLine($"Use Reduce AP Skill (-{reduceAPSkill.EffectPoints})");
+            reduceAPSkill.UseSkill(null, player.Deck);
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                Console.WriteLine($"{characters[i].Name}: {characters[i].AttackPoints} AP, {characters[i].ResistPoints} RP");
+                Assert.IsTrue(characters[i].AttackPoints == Math.Max(ap[i] - reduceAPSkill.EffectPoints, 0));
+            }
+        }
+
+        [Test]
+        public void ReduceRPSkill()
+        {
+            FillDeckCharacters(50);
+
+            SupportSkill reduceRPSkill = new SupportSkill("Reduce RP Skill", Card.Rarity.Common, 0, SupportSkill.EffectType.ReduceRP, 10);
+
+            List<Character> characters = player.Deck.GetCharacters();
+
+            int[] rp = new int[characters.Count];
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                rp[i] = characters[i].ResistPoints;
+            }
+
+            Console.WriteLine($"Use Reduce RP Skill (-{reduceRPSkill.EffectPoints})");
+            reduceRPSkill.UseSkill(null, player.Deck);
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                Console.WriteLine($"{characters[i].Name}: {characters[i].AttackPoints} AP, {characters[i].ResistPoints} RP");
+                Assert.IsTrue(characters[i].ResistPoints == Math.Max(rp[i] - reduceRPSkill.EffectPoints, 0));
+            }
+        }
+
+        [Test]
+        public void ReduceAllSkill()
+        {
+            FillDeckCharacters(50);
+
+            SupportSkill reduceAllSkill = new SupportSkill("Reduce All Skill", Card.Rarity.Common, 0, SupportSkill.EffectType.ReduceAll, 10);
+
+            List<Character> characters = player.Deck.GetCharacters();
+
+            int[] ap = new int[characters.Count];
+            int[] rp = new int[characters.Count];
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                ap[i] = characters[i].AttackPoints;
+                rp[i] = characters[i].ResistPoints;
+            }
+
+            Console.WriteLine($"Use Reduce All Skill (-{reduceAllSkill.EffectPoints})");
+            reduceAllSkill.UseSkill(null, player.Deck);
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                Console.WriteLine($"{characters[i].Name}: {characters[i].AttackPoints} AP, {characters[i].ResistPoints} RP");
+                Assert.IsTrue(characters[i].AttackPoints == Math.Max(ap[i] - reduceAllSkill.EffectPoints, 0));
+                Assert.IsTrue(characters[i].ResistPoints == Math.Max(rp[i] - reduceAllSkill.EffectPoints, 0));
+            }
+        }
+
+        [Test]
+        public void RestoreRPSkill()
+        {
+            FillDeckCharacters(50);
+
+            Character enemy = new Character("Enemy", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Undead);
+
+            List<Character> characters = player.Deck.GetCharacters();
+
+            List<int> rpOrigin = new List<int>(characters.Count);
+            List<int> rp = new List<int>(characters.Count);
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                Console.WriteLine($"Undead Enemy ({enemy.AttackPoints} AP) attacks {characters[i].Name} ({characters[i].ResistPoints} RP)");
+
+                int originRP = characters[i].ResistPoints;
+
+                if (!enemy.Attack(characters[i]))
+                {
+                    rpOrigin.Add(originRP);
+                    rp.Add(characters[i].ResistPoints);
+                }
+
+                Console.WriteLine($"{characters[i].Name} RP: {characters[i].ResistPoints}");
+            }
+
+            SupportSkill restoreRPSkill = new SupportSkill("Restore RP Skill", Card.Rarity.Common, 0, SupportSkill.EffectType.RestoreRP, 10);
+
+            Console.WriteLine($"\nUse Restore RP Skill (+{restoreRPSkill.EffectPoints})");
+            restoreRPSkill.UseSkill(player.Deck, null);
+
+            characters = player.Deck.GetCharacters();
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                Console.WriteLine($"{characters[i].Name}: {characters[i].AttackPoints} AP, {characters[i].ResistPoints} RP");
+                Assert.IsTrue(characters[i].ResistPoints == Math.Min(rp[i] + restoreRPSkill.EffectPoints, rpOrigin[i]));
+            }
+        }
+
         #endregion
 
         #region Other
@@ -509,6 +624,20 @@ namespace Tests
             E[] values = Enum.GetValues(typeof(E)) as E[];
 
             return values[random.Next(0, values.Length)];
+        }
+
+        private void FillDeckCharacters(int maxStats)
+        {
+            for (int i = 0; i < Deck.maxCharacters; i++)
+            {
+                Character.Affinity affinity = GetRandomEnum<Character.Affinity>();
+                Character character = new Character($"Char{i + 1}_{affinity}", Character.Rarity.Common, 0, random.Next(1, maxStats), random.Next(1, maxStats), affinity);
+
+                Console.WriteLine($"Add {character.Name} ({character.AttackPoints} AP, {character.ResistPoints} RP)");
+                player.Deck.AddCard(character);
+            }
+
+            Console.WriteLine();
         }
 
         #endregion

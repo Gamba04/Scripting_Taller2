@@ -39,7 +39,7 @@ namespace Scripting_Taller2
         {
             if (affinity == Affinity.All || (Affinity)(int)character.GetAffinity == affinity)
             {
-                character.EquipItem(this);
+                character.AddEquip(this);
 
                 // Consume equip
                 RemoveFromDeck();

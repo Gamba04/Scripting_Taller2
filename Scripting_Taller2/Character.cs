@@ -23,6 +23,8 @@ namespace Scripting_Taller2
         private int restorableRP;
 
         public Affinity GetAffinity => affinity;
+        public int AttackPoints => attackPoints;
+        public int ResistPoints => resistPoints;
 
         public Character(string name, Rarity rarity, int costPoints, int attackPoints, int resistPoints, Affinity affinity) : base(name, rarity, costPoints)
         {
@@ -31,12 +33,14 @@ namespace Scripting_Taller2
             this.affinity = affinity;
         }
 
-        public void Attack(Character character)
+        public bool Attack(Character character)
         {
-            character.Resist(attackPoints);
+            int affinityBonus = EvaluateAffinity(character.affinity);
+
+            return !character.Resist(attackPoints + affinityBonus);
         }
 
-        public void Resist(int attackPoints)
+        public bool Resist(int attackPoints)
         {
             resistPoints -= attackPoints;
             restorableRP += attackPoints;
@@ -45,10 +49,13 @@ namespace Scripting_Taller2
             if (resistPoints <= 0)
             {
                 RemoveFromDeck();
+                return false;
             }
+
+            return true;
         }
 
-        public void EquipItem(Equip equip)
+        public void AddEquip(Equip equip)
         {
             // Apply equip stats
             switch (equip.GetTargetAttribute)
@@ -64,7 +71,6 @@ namespace Scripting_Taller2
                 case Equip.TargetAttribute.All:
                     attackPoints += equip.EffectPoints;
                     resistPoints += equip.EffectPoints;
-
                     break;
             }
 
@@ -89,7 +95,6 @@ namespace Scripting_Taller2
                     case Equip.TargetAttribute.All:
                         attackPoints -= equip.EffectPoints;
                         resistPoints -= equip.EffectPoints;
-
                         break;
                 }
 
@@ -120,6 +125,16 @@ namespace Scripting_Taller2
             amount = Math.Min(amount, restorableRP);
 
             restorableRP -= amount;
+        }
+
+        private int EvaluateAffinity(Affinity targetAffinity)
+        {
+            if (targetAffinity == affinity) return 0;
+
+            int nextAffinity = (int)affinity + 1;
+            if (nextAffinity == 3) nextAffinity = 0;
+
+            return targetAffinity == (Affinity)nextAffinity ? 1 : -1;
         }
     }
 }

@@ -20,6 +20,8 @@ namespace Scripting_Taller2
 
         internal event Action<Card> onRemoveFromDeck;
 
+        public string Name => name;
+
         public int CostPoints => costPoints;
 
         protected Card(string name, Rarity rarity, int costPoints)

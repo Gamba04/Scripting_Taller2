@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+using Scripting_Taller2;
 
-namespace Scripting_Taller2
+namespace Tests
 {
     public class Tests
     {
@@ -30,43 +32,49 @@ namespace Scripting_Taller2
         }
 
         [Test]
-        public void Add0Card()
+        public void Add0CPCard()
         {
-            PrintDeckCP();
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
 
             Console.WriteLine("Add card (0 CP)");
-            Assert.IsTrue(player.Deck.AddCard(new Character("0 CP", Card.Rarity.Common, 0, 0, 0, Character.Affinity.Knight)));
+            Assert.IsTrue(player.Deck.AddCard(new Character("0 CP", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight)));
 
-            PrintDeckCP();
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
         }
 
         [Test]
-        public void AddMaxCard()
+        public void AddMaxCPCard()
         {
-            PrintDeckCP();
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
 
             Console.WriteLine($"Add card ({playerCostPoints} CP)");
-            Assert.IsTrue(player.Deck.AddCard(new Character("Max CP", Card.Rarity.Common, playerCostPoints, 0, 0, Character.Affinity.Knight)));
+            Assert.IsTrue(player.Deck.AddCard(new Character("Max CP", Card.Rarity.Common, playerCostPoints, 10, 10, Character.Affinity.Knight)));
 
-            PrintDeckCP();
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
         }
 
         [Test]
         public void AddRandomCard()
         {
-            PrintDeckCP();
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
 
             Card randomCard = GenerateRandomCard();
             Console.WriteLine($"Add card ({randomCard.CostPoints} CP)");
             Assert.IsTrue(player.Deck.AddCard(randomCard));
 
-            PrintDeckCP();
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
+        }
+
+        [Test]
+        public void Add0RPCharacter()
+        {
+            Assert.IsFalse(player.Deck.AddCard(new Character("Invalid Character", Card.Rarity.Common, 0, 0, 0, Character.Affinity.Knight)));
         }
 
         [Test]
         public void FillDeckWithRandomCards()
         {
-            PrintDeckCP();
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
 
             int iterations = 0;
 
@@ -84,7 +92,7 @@ namespace Scripting_Taller2
                 if (expected) Assert.IsTrue(result);
                 else Assert.IsFalse(result);
 
-                PrintDeckCP();
+                Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
 
                 iterations++;
             }
@@ -93,7 +101,7 @@ namespace Scripting_Taller2
         [Test]
         public void KnightVsKnight()
         {
-            Character knight1 = new Character("Knight 1", Card.Rarity.Common, 0, 9, 10, Character.Affinity.Knight);
+            Character knight1 = new Character("Knight 1", Card.Rarity.Common, 0, 8, 10, Character.Affinity.Knight);
             Character knight2 = new Character("Knight 2", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight);
 
             // Knight1 attacks Knight2, doesn't kill
@@ -110,8 +118,8 @@ namespace Scripting_Taller2
         [Test]
         public void KnightVsUndead()
         {
-            Character knight = new Character("Knight", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Undead);
-            Character undead = new Character("Undead", Card.Rarity.Common, 0, 9, 10, Character.Affinity.Mage);
+            Character knight = new Character("Knight", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight);
+            Character undead = new Character("Undead", Card.Rarity.Common, 0, 8, 10, Character.Affinity.Undead);
 
             // Knight attacks Undead, doesn't kill
             Console.WriteLine($"Knight ({knight.AttackPoints} AP) attacks Undead ({undead.ResistPoints} RP)");
@@ -128,7 +136,7 @@ namespace Scripting_Taller2
         public void UndeadVsMage()
         {
             Character undead = new Character("Undead", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Undead);
-            Character mage = new Character("Mage", Card.Rarity.Common, 0, 9, 10, Character.Affinity.Mage);
+            Character mage = new Character("Mage", Card.Rarity.Common, 0, 8, 10, Character.Affinity.Mage);
 
             // Undead attacks Mage, doesn't kill
             Console.WriteLine($"Undead ({undead.AttackPoints} AP) attacks Mage ({mage.ResistPoints} RP)");
@@ -145,7 +153,7 @@ namespace Scripting_Taller2
         public void MageVsKnight()
         {
             Character mage = new Character("Mage", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Mage);
-            Character knight = new Character("Knight", Card.Rarity.Common, 0, 9, 10, Character.Affinity.Knight);
+            Character knight = new Character("Knight", Card.Rarity.Common, 0, 8, 10, Character.Affinity.Knight);
 
             // Mage attacks Knight, doesn't kill
             Console.WriteLine($"Mage ({mage.AttackPoints} AP) attacks Knight ({knight.ResistPoints} RP)");
@@ -159,13 +167,49 @@ namespace Scripting_Taller2
         }
 
         [Test]
-        public void ApplyEquips()
+        public void WinMatch()
+        {
+            for (int i = 0; i < Deck.maxCharacters; i++)
+            {
+                Character.Affinity affinity = GetRandomEnum<Character.Affinity>();
+                Character character = new Character($"{affinity}_{i + 1}", Character.Rarity.SuperRare, 0, random.Next(1, 50), random.Next(1, 50), affinity);
+
+                Console.WriteLine($"Add {character.Name} ({character.AttackPoints} AP, {character.ResistPoints} RP)");
+                player.Deck.AddCard(character);
+            }
+
+            Character enemy = new Character("Undead Enemy", Card.Rarity.Rare, 0, 20, 20, Character.Affinity.Undead);
+
+            List<Character> deckCharacters = player.Deck.GetCharacters();
+
+            Console.WriteLine($"\nUndead Enemy attacks:");
+            Console.WriteLine($"Deck cards: {player.Deck.Cards.Count}, lost: {player.Lost}\n");
+
+            for (int i = 0; i < deckCharacters.Count; i++)
+            {
+                do
+                {
+                    Console.WriteLine($"Undead Enemy ({enemy.AttackPoints} AP) attacks {deckCharacters[i].Name} ({deckCharacters[i].ResistPoints} RP)");
+                    enemy.Attack(deckCharacters[i]);
+                    Console.WriteLine($"{deckCharacters[i].Name} RP: {deckCharacters[i].ResistPoints}");
+                }
+                while (deckCharacters[i].ResistPoints > 0); // In case it doesn't kill
+
+                Console.WriteLine($"Deck cards: {player.Deck.Cards.Count}, lost: {player.Lost}\n");
+            }
+
+            Assert.IsTrue(player.Deck.Cards.Count == 0);
+            Assert.IsTrue(player.Lost);
+        }
+
+        [Test]
+        public void EquipsStats()
         {
             Character character = new Character("Character", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight);
 
-            Equip equipAP = new Equip("AP", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.All);
-            Equip equipRP = new Equip("AP", Card.Rarity.Common, 0, Equip.TargetAttribute.RP, 5, Equip.Affinity.All);
-            Equip equipAll = new Equip("AP", Card.Rarity.Common, 0, Equip.TargetAttribute.All, 5, Equip.Affinity.All);
+            Equip equipAP = new Equip("Equip AP", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.All);
+            Equip equipRP = new Equip("Equip RP", Card.Rarity.Common, 0, Equip.TargetAttribute.RP, 7, Equip.Affinity.All);
+            Equip equipAll = new Equip("Equip All", Card.Rarity.Common, 0, Equip.TargetAttribute.All, 10, Equip.Affinity.All);
 
             int ap = character.AttackPoints;
             int rp = character.ResistPoints;
@@ -173,30 +217,204 @@ namespace Scripting_Taller2
             Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
 
             // Apply AP
-            Console.WriteLine($"Apply AP Equip (+{equipAP.EffectPoints})");
-            character.AddEquip(equipAP);
+            Console.WriteLine($"Apply Equip AP (+{equipAP.EffectPoints})");
+            equipAP.ApplyToCharacter(character);
             Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
 
             Assert.IsTrue(character.AttackPoints == ap + equipAP.EffectPoints);
             ap += equipAP.EffectPoints;
 
             // Apply RP
-            Console.WriteLine($"Apply RP Equip (+{equipRP.EffectPoints})");
-            character.AddEquip(equipRP);
+            Console.WriteLine($"Apply Equip RP (+{equipRP.EffectPoints})");
+            equipRP.ApplyToCharacter(character);
             Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
 
-            Assert.IsTrue(character.AttackPoints == rp + equipRP.EffectPoints);
+            Assert.IsTrue(character.ResistPoints == rp + equipRP.EffectPoints);
             rp += equipRP.EffectPoints;
 
             // Apply All
-            Console.WriteLine($"Apply All Equip (+{equipAll.EffectPoints})");
-            character.AddEquip(equipAll);
+            Console.WriteLine($"Apply Equip All (+{equipAll.EffectPoints})");
+            equipAll.ApplyToCharacter(character);
             Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
 
-            Assert.IsTrue(character.AttackPoints == rp + equipAll.EffectPoints);
             Assert.IsTrue(character.AttackPoints == ap + equipAll.EffectPoints);
+            Assert.IsTrue(character.ResistPoints == rp + equipAll.EffectPoints);
             ap += equipAll.EffectPoints;
             rp += equipAll.EffectPoints;
+        }
+
+        [Test]
+        public void MaxEquips()
+        {
+            Character character = new Character("Character", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight);
+
+            Equip equip;
+
+            for (int i = 0; i < Character.maxEquips; i++)
+            {
+                Console.WriteLine($"Apply Equip ({i + 1}/{Character.maxEquips}): Expect True");
+                equip = new Equip($"Equip {i + 1}", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.All);
+
+                Assert.IsTrue(equip.ApplyToCharacter(character));
+            }
+
+            Console.WriteLine($"Apply Equip ({Character.maxEquips + 1}/{Character.maxEquips}): Expect False");
+            equip = new Equip($"Equip past limit", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.All);
+
+            Assert.IsFalse(equip.ApplyToCharacter(character));
+        }
+
+        [Test]
+        public void InvalidEquips()
+        {
+            Character knight = new Character("Knight", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight);
+            Character mage = new Character("Mage", Card.Rarity.Common, 0, 9, 10, Character.Affinity.Mage);
+            Character undead = new Character("Undead", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Undead);
+
+            Equip equipKnight = new Equip($"Equip Knight", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.Knight);
+            Equip equipMage = new Equip($"Equip Mage", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.Mage);
+            Equip equipUndead = new Equip($"Equip Undead", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.Undead);
+            Equip equipAll = new Equip($"Equip All", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.All);
+
+            // Equip Knight
+            Console.WriteLine("Apply Equip Knight in Knight: Expect True");
+            Assert.IsTrue(equipKnight.ApplyToCharacter(knight));
+
+            Console.WriteLine("Apply Equip Knight in Mage: Expect False");
+            Assert.IsFalse(equipKnight.ApplyToCharacter(mage));
+
+            Console.WriteLine("Apply Equip Knight in Undead: Expect False\n");
+            Assert.IsFalse(equipKnight.ApplyToCharacter(undead));
+
+            // Equip Mage
+            Console.WriteLine("Apply Equip Mage in Knight: Expect False");
+            Assert.IsFalse(equipMage.ApplyToCharacter(knight));
+
+            Console.WriteLine("Apply Equip Mage in Mage: Expect True");
+            Assert.IsTrue(equipMage.ApplyToCharacter(mage));
+
+            Console.WriteLine("Apply Equip Mage in Undead: Expect False\n");
+            Assert.IsFalse(equipMage.ApplyToCharacter(undead));
+
+            // Equip Undead
+            Console.WriteLine("Apply Equip Undead in Knight: Expect False");
+            Assert.IsFalse(equipUndead.ApplyToCharacter(knight));
+
+            Console.WriteLine("Apply Equip Undead in Mage: Expect False");
+            Assert.IsFalse(equipUndead.ApplyToCharacter(mage));
+
+            Console.WriteLine("Apply Equip Undead in Undead: Expect True\n");
+            Assert.IsTrue(equipUndead.ApplyToCharacter(undead));
+
+            // Equip All
+            Console.WriteLine("Apply Equip All in Knight: Expect True");
+            Assert.IsTrue(equipAll.ApplyToCharacter(knight));
+
+            Console.WriteLine("Apply Equip All in Mage: Expect True");
+            Assert.IsTrue(equipAll.ApplyToCharacter(mage));
+
+            Console.WriteLine("Apply Equip All in Undead: Expect True");
+            Assert.IsTrue(equipAll.ApplyToCharacter(undead));
+        }
+
+        [Test]
+        public void DestroyEquipSkill()
+        {
+            Character character = new Character("Character", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight);
+
+            Equip equipAP = new Equip("Equip AP", Card.Rarity.Common, 0, Equip.TargetAttribute.AP, 5, Equip.Affinity.All);
+            Equip equipRP = new Equip("Equip RP", Card.Rarity.Common, 0, Equip.TargetAttribute.RP, 7, Equip.Affinity.All);
+            Equip equipAll = new Equip("Equip All", Card.Rarity.Common, 0, Equip.TargetAttribute.All, 10, Equip.Affinity.All);
+
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            // Apply AP
+            Console.WriteLine($"Apply Equip AP (+{equipAP.EffectPoints})");
+            equipAP.ApplyToCharacter(character);
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            // Apply RP
+            Console.WriteLine($"Apply Equip RP (+{equipRP.EffectPoints})");
+            equipRP.ApplyToCharacter(character);
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            // Apply All
+            Console.WriteLine($"Apply Equip All (+{equipAll.EffectPoints})");
+            equipAll.ApplyToCharacter(character);
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            int ap = character.AttackPoints;
+            int rp = character.ResistPoints;
+
+            SupportSkill destroySkill = new SupportSkill("Destroy Skill", Card.Rarity.Common, 0, SupportSkill.EffectType.DestroyEquip, 10);
+            Assert.IsTrue(destroySkill.EffectPoints == 0);
+
+            // Destroy Equip AP
+            Console.WriteLine($"Destroy Equip AP (-{equipAP.EffectPoints})");
+            Assert.IsTrue(destroySkill.UseSkill(null, null, character, equipAP));
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            Assert.IsTrue(character.AttackPoints == ap - equipAP.EffectPoints);
+            ap -= equipAP.EffectPoints;
+
+            // Destroy Equip RP
+            Console.WriteLine($"Destroy Equip RP (-{equipRP.EffectPoints})");
+            Assert.IsTrue(destroySkill.UseSkill(null, null, character, equipRP));
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            Assert.IsTrue(character.ResistPoints == rp - equipRP.EffectPoints);
+            rp -= equipRP.EffectPoints;
+
+            // Destroy Equip All
+            Console.WriteLine($"Destroy Equip All (-{equipAll.EffectPoints})");
+            Assert.IsTrue(destroySkill.UseSkill(null, null, character, equipAll));
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            Assert.IsTrue(character.AttackPoints == ap - equipAll.EffectPoints);
+            Assert.IsTrue(character.ResistPoints == rp - equipAll.EffectPoints);
+            ap -= equipAll.EffectPoints;
+            rp -= equipAll.EffectPoints;
+
+            // Destroy Invalid Equip
+            Console.WriteLine($"Destroy Invalid Equip");
+            Assert.IsFalse(destroySkill.UseSkill(null, null, character, equipAll));
+        }
+
+        [Test]
+        public void KillByDestroyEquipInLifeSupport()
+        {
+            Character character = new Character("Character", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight);
+            Character enemy = new Character("Enemy", Card.Rarity.Common, 0, 10, 10, Character.Affinity.Knight);
+
+            Equip equipRP = new Equip("Equip RP", Card.Rarity.Common, 0, Equip.TargetAttribute.RP, 1, Equip.Affinity.All);
+
+            SupportSkill destroySkill = new SupportSkill("Destroy Skill", Card.Rarity.Common, 0, SupportSkill.EffectType.DestroyEquip, 10);
+
+            player.Deck.AddCard(character);
+            Console.WriteLine($"Deck cards: {player.Deck.Cards.Count}, lost: {player.Lost}");
+
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            // Apply RP
+            Console.WriteLine($"Apply Equip RP (+{equipRP.EffectPoints})");
+            equipRP.ApplyToCharacter(character);
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            // Enemy attacks Character past base health, doesn't kill because of Equip RP
+            Console.WriteLine($"Enemy ({enemy.AttackPoints} AP) attacks Character ({character.ResistPoints} RP)");
+            Assert.IsFalse(enemy.Attack(character));
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            // Destroy Equip RP
+            Console.WriteLine($"Destroy Equip RP (-{equipRP.EffectPoints})");
+            Assert.IsTrue(destroySkill.UseSkill(null, player.Deck, character, equipRP));
+            Console.WriteLine($"AP: {character.AttackPoints}, RP: {character.ResistPoints}");
+
+            Assert.IsTrue(character.ResistPoints <= 0);
+            Assert.IsTrue(player.Deck.Cards.Count == 0);
+            Assert.IsTrue(player.Lost);
+
+            Console.WriteLine($"Deck cards: {player.Deck.Cards.Count}, lost: {player.Lost}");
         }
 
         #endregion
@@ -216,19 +434,19 @@ namespace Scripting_Taller2
                 case 0:
                     rarity = (Card.Rarity)GetRandomIntWithProbability(12, 5, 2.5f, 0.5f);
 
-                    card = new Character("Random Character", rarity, costPoints, random.Next(0, 10), random.Next(0, 10), GetRandomEnum<Character.Affinity>());
+                    card = new Character("Random Character", rarity, costPoints, random.Next(1, 10), random.Next(1, 10), GetRandomEnum<Character.Affinity>());
                     break;
 
                 case 1:
                     rarity = (Card.Rarity)GetRandomIntWithProbability(20, 7, 2.5f, 0.5f);
 
-                    card = new Equip("Random Equip", rarity, costPoints, GetRandomEnum<Equip.TargetAttribute>(), random.Next(0, 10), GetRandomEnum<Equip.Affinity>());
+                    card = new Equip("Random Equip", rarity, costPoints, GetRandomEnum<Equip.TargetAttribute>(), random.Next(1, 10), GetRandomEnum<Equip.Affinity>());
                     break;
 
                 case 2:
                     rarity = (Card.Rarity)GetRandomIntWithProbability(37, 10, 2.5f, 0.5f);
 
-                    card = new SupportSkill("Random Support", rarity, costPoints, GetRandomEnum<SupportSkill.EffectType>(), random.Next(0, 10));
+                    card = new SupportSkill("Random Support", rarity, costPoints, GetRandomEnum<SupportSkill.EffectType>(), random.Next(1, 10));
                     break;
             }
 
@@ -292,8 +510,6 @@ namespace Scripting_Taller2
 
             return values[random.Next(0, values.Length)];
         }
-
-        private void PrintDeckCP() => Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
 
         #endregion
 

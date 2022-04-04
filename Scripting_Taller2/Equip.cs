@@ -35,15 +35,20 @@ namespace Scripting_Taller2
             this.affinity = affinity;
         }
 
-        public void UseOnCharacter(Character character)
+        public bool ApplyToCharacter(Character character)
         {
             if (affinity == Affinity.All || (Affinity)(int)character.GetAffinity == affinity)
             {
-                character.AddEquip(this);
+                if (character.AddEquip(this))
+                {
+                    // Consume equip
+                    RemoveFromDeck();
 
-                // Consume equip
-                RemoveFromDeck();
+                    return true;
+                }
             }
+
+            return false;
         }
     }
 }

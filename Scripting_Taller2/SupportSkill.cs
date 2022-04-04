@@ -18,13 +18,15 @@ namespace Scripting_Taller2
         private EffectType effectType;
         private int effectPoints;
 
+        public int EffectPoints => effectPoints;
+
         public SupportSkill(string name, Rarity rarity, int costPoints, EffectType effectType, int effectPoints) : base(name, rarity, costPoints)
         {
             this.effectType = effectType;
             this.effectPoints = effectType == EffectType.DestroyEquip ? 0 : effectPoints;
         }
 
-        public void UseSkill(Deck deck, Deck opponentDeck, Character targetCharacter, Equip targetEquip = null)
+        public bool UseSkill(Deck deck, Deck opponentDeck, Character targetCharacter, Equip targetEquip = null)
         {
             switch (effectType)
             {
@@ -42,8 +44,7 @@ namespace Scripting_Taller2
                     break;
 
                 case EffectType.DestroyEquip:
-                    targetCharacter.DestroyEquip(targetEquip);
-                    break;
+                    return targetCharacter.DestroyEquip(targetEquip);
 
                 case EffectType.RestoreRP:
                     deck.RestoreRP(effectPoints);
@@ -52,6 +53,8 @@ namespace Scripting_Taller2
 
             // Consume skill
             RemoveFromDeck();
+
+            return true;
         }
     }
 }

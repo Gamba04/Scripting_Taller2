@@ -26,6 +26,8 @@ namespace Scripting_Taller2
         public int EquipsCount => equipsCount;
         public int SupportsCount => supportsCount;
 
+        public List<Card> Cards => cards;
+
         public Deck(int costPoints)
         {
             this.costPoints = costPoints;
@@ -34,9 +36,9 @@ namespace Scripting_Taller2
         public bool AddCard(Card card)
         {
             // Type validation
-            if (card is Character)
+            if (card is Character character)
             {
-                if (charactersCount < maxCharacters)
+                if (charactersCount < maxCharacters && character.ResistPoints > 0)
                 {
                     charactersCount++;
                 }
@@ -117,6 +119,21 @@ namespace Scripting_Taller2
                     character.RestoreRP(amount);
                 }
             }
+        }
+
+        public List<Character> GetCharacters()
+        {
+            List<Character> characters = new List<Character>();
+
+            foreach (Card card in cards)
+            {
+                if (card is Character character)
+                {
+                    characters.Add(character);
+                }
+            }
+
+            return characters;
         }
     }
 }

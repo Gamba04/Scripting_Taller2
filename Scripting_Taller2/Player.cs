@@ -8,7 +8,11 @@ namespace Scripting_Taller2
     {
         private Deck deck;
 
+        private bool lost;
+
         public Deck Deck => deck;
+
+        public bool Lost => lost;
 
         public Player(int costPoints)
         {
@@ -18,7 +22,7 @@ namespace Scripting_Taller2
 
         private void Lose()
         {
-
+            lost = true;
         }
     }
 }

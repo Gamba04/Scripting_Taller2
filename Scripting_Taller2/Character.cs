@@ -13,7 +13,7 @@ namespace Scripting_Taller2
             Undead
         }
 
-        private const int maxEquips = 3;
+        public const int maxEquips = 3;
 
         private int attackPoints;
         private int resistPoints;
@@ -55,8 +55,10 @@ namespace Scripting_Taller2
             return true;
         }
 
-        public void AddEquip(Equip equip)
+        internal bool AddEquip(Equip equip)
         {
+            if (equips.Count >= maxEquips) return false;
+
             // Apply equip stats
             switch (equip.GetTargetAttribute)
             {
@@ -74,38 +76,41 @@ namespace Scripting_Taller2
                     break;
             }
 
-            if (equips.Count < maxEquips) equips.Add(equip);
+            equips.Add(equip);
+
+            return true;
         }
 
-        public void DestroyEquip(Equip equip)
+        internal bool DestroyEquip(Equip equip)
         {
-            if (equips.Contains(equip))
+            if (!equips.Contains(equip)) return false;
+
+            // Deduct equip stats
+            switch (equip.GetTargetAttribute)
             {
-                // Deduct equip stats
-                switch (equip.GetTargetAttribute)
-                {
-                    case Equip.TargetAttribute.AP:
-                        attackPoints -= equip.EffectPoints;
-                        break;
+                case Equip.TargetAttribute.AP:
+                    attackPoints -= equip.EffectPoints;
+                    break;
 
-                    case Equip.TargetAttribute.RP:
-                        resistPoints -= equip.EffectPoints;
-                        break;
+                case Equip.TargetAttribute.RP:
+                    resistPoints -= equip.EffectPoints;
+                    break;
 
-                    case Equip.TargetAttribute.All:
-                        attackPoints -= equip.EffectPoints;
-                        resistPoints -= equip.EffectPoints;
-                        break;
-                }
-
-                equips.Remove(equip);
-
-                // Check death
-                if (resistPoints <= 0)
-                {
-                    RemoveFromDeck();
-                }
+                case Equip.TargetAttribute.All:
+                    attackPoints -= equip.EffectPoints;
+                    resistPoints -= equip.EffectPoints;
+                    break;
             }
+
+            equips.Remove(equip);
+
+            // Check death
+            if (resistPoints <= 0)
+            {
+                RemoveFromDeck();
+            }
+
+            return true;
         }
 
         public void ReduceAP(int amount)
@@ -134,7 +139,7 @@ namespace Scripting_Taller2
             int nextAffinity = (int)affinity + 1;
             if (nextAffinity == 3) nextAffinity = 0;
 
-            return targetAffinity == (Affinity)nextAffinity ? 1 : -1;
+            return targetAffinity == (Affinity)nextAffinity ? 2 : -2;
         }
     }
 }

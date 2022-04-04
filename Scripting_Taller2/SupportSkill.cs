@@ -50,6 +50,7 @@ namespace Scripting_Taller2
                     break;
             }
 
+            // Consume skill
             RemoveFromDeck();
         }
     }

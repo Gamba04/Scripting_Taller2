@@ -6,9 +6,9 @@ namespace Scripting_Taller2
 {
     public class Deck
     {
-        private const int maxCharacters = 5;
-        private const int maxEquips = 10;
-        private const int maxSupports = 5;
+        public const int maxCharacters = 5;
+        public const int maxEquips = 10;
+        public const int maxSupports = 5;
 
         private int charactersCount;
         private int equipsCount;
@@ -18,7 +18,13 @@ namespace Scripting_Taller2
 
         private List<Card> cards = new List<Card>();
 
-        public event Action onAllCharactersEliminated;
+        internal event Action onAllCharactersEliminated;
+
+        public int CostPoints => costPoints;
+
+        public int CharactersCount => charactersCount;
+        public int EquipsCount => equipsCount;
+        public int SupportsCount => supportsCount;
 
         public Deck(int costPoints)
         {

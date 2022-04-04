@@ -18,11 +18,11 @@ namespace Scripting_Taller2
         protected Rarity rarity;
         protected int costPoints;
 
-        public event Action<Card> onRemoveFromDeck;
+        internal event Action<Card> onRemoveFromDeck;
 
         public int CostPoints => costPoints;
 
-        public Card(string name, Rarity rarity, int costPoints)
+        protected Card(string name, Rarity rarity, int costPoints)
         {
             this.name = name;
             this.rarity = rarity;

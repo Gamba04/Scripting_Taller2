@@ -8,6 +8,8 @@ namespace Scripting_Taller2
     {
         private Deck deck;
 
+        public Deck Deck => deck;
+
         public Player(int costPoints)
         {
             deck = new Deck(costPoints);

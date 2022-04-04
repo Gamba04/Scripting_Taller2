@@ -25,8 +25,8 @@ namespace Scripting_Taller2
         private int effectPoints;
         private Affinity affinity;
 
-        public TargetAttribute GetTargetAttribute => targetAttribute;
-        public int EffectPoints => effectPoints;
+        internal TargetAttribute GetTargetAttribute => targetAttribute;
+        internal int EffectPoints => effectPoints;
 
         public Equip(string name, Rarity rarity, int costPoints, TargetAttribute targetAttribute, int effectPoints, Affinity affinity) : base(name, rarity, costPoints)
         {
@@ -41,6 +41,7 @@ namespace Scripting_Taller2
             {
                 character.EquipItem(this);
 
+                // Consume equip
                 RemoveFromDeck();
             }
         }

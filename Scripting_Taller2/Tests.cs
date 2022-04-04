@@ -54,6 +54,17 @@ namespace Tests
         }
 
         [Test]
+        public void AddHigherThanMaxCPCard()
+        {
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
+
+            Console.WriteLine($"Add card ({playerCostPoints + 1} CP)");
+            Assert.IsFalse(player.Deck.AddCard(new Character("Max + 1 CP", Card.Rarity.Common, playerCostPoints + 1, 10, 10, Character.Affinity.Knight)));
+
+            Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");
+        }
+
+        [Test]
         public void AddRandomCard()
         {
             Console.WriteLine($"Deck CP: {player.Deck.CostPoints}");

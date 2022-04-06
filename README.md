@@ -5,7 +5,7 @@ Juan Camilo Quintero
 Pedro Pablo Restrepo
 
 Observaciones:
-- Equipment se adiere a stats
+- Los stats de los equpments se suman a los stats del personaje al que se equipan, y en el momento en que se destruyen se restan estos stats, por lo tanto es posible que un personaje muera si le quitan 1 equipment que le sume el equvalente a la vida actual que tiene.
 - Se aplica el bono de affinity (+2, -2) a la hora de atacar, pero no modifica el stat como tal
 - Como no estaba explicito en el enunciado, las skills de ReduceAP, ReduceRP y ReduceAll afectan a todas las cartas del Deck enemigo y RestoreRP afecta a todas las cartas del Deck propio. DestroyEquip debe especificar parametros opcionales de la carta Character a aplicar y el Equipo a destruir.
 - Se utilizo herencia en las cartas partiendo de una clase base abstracta Card, ya que esta no debe ser instanciada como tal, con un constructor base protected que se hereda a los otros constructores.
